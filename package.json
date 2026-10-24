@@ -1,0 +1,17 @@
+{
+  "name": "premier-receptionist-test",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "python3 server.py"
+  },
+  "dependencies": {
+    "retell-client-js-sdk": "3.0.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

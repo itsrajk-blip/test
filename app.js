@@ -1,11 +1,84 @@
-const listings=[{address:'18 Garden Avenue',suburb:'Sample suburb · VIC',type:'House',beds:4,baths:2,cars:2,price:'Expressions of interest',mode:'buy'},{address:'6/42 Park Street',suburb:'Sample suburb · VIC',type:'Apartment',beds:2,baths:2,cars:1,price:'Contact agent',mode:'buy'},{address:'23 The Boulevard',suburb:'Sample suburb · VIC',type:'Townhouse',beds:3,baths:2,cars:2,price:'$650 per week',mode:'rent'}];
-let mode='buy';
-function render(all=false){const q=document.querySelector('#location').value.trim().toLowerCase(),type=document.querySelector('#type').value,beds=Number(document.querySelector('#beds').value);const matches=listings.filter(p=>all||(p.mode===mode&&(!q||`${p.address} ${p.suburb}`.toLowerCase().includes(q))&&(!type||type===p.type)&&p.beds>=beds));const cards=document.querySelector('#cards');cards.replaceChildren();matches.forEach(p=>{const card=document.createElement('article');card.className='card';card.innerHTML=`<div class="property-art art${listings.indexOf(p)+1}" role="img" aria-label="Illustration of a sample ${p.type.toLowerCase()}"><span class="tag">${p.mode==='buy'?'FOR SALE':'FOR RENT'} · SAMPLE</span></div><h3>${p.address}</h3><p>${p.suburb}</p><div class="card-bottom"><span>${p.beds} bed &nbsp; ${p.baths} bath &nbsp; ${p.cars} car</span><strong>${p.price}</strong></div><button>Enquire about this property ↗</button>`;card.querySelector('button').onclick=()=>openChat(`You’re enquiring about ${p.address}, a sample listing. This demo can show the enquiry flow, but cannot contact an agent or book an inspection.`);cards.append(card)});document.querySelector('#empty').hidden=matches.length>0;}
-function setMode(value){mode=value;document.querySelectorAll('[data-mode]').forEach(b=>{b.classList.toggle('selected',b.dataset.mode===mode);b.setAttribute('aria-pressed',String(b.dataset.mode===mode))});render()}
-document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));document.querySelector('[data-rent]').onclick=()=>setMode('rent');document.querySelector('#search').onsubmit=e=>{e.preventDefault();render();document.querySelector('#properties').scrollIntoView({behavior:'smooth'})};document.querySelector('#reset').onclick=e=>{e.preventDefault();document.querySelector('#search').reset();render(true)};
-const chat=document.querySelector('#chat'),messages=document.querySelector('#messages');let returnFocus;
-function addMessage(text,user=false){const el=document.createElement('div');el.className='message'+(user?' user':'');el.textContent=text;messages.append(el);messages.scrollTop=messages.scrollHeight;}
-function openChat(greeting){returnFocus=document.activeElement;if(!chat.open)chat.showModal();if(!messages.children.length)addMessage('Welcome to the Premier concierge demo. I can explain the sample property search and enquiry options. What would you like to explore?');if(greeting)addMessage(greeting);document.querySelector('#message').focus()}
-document.querySelectorAll('[data-chat]').forEach(b=>b.onclick=()=>openChat());document.querySelector('#close').onclick=()=>chat.close();chat.addEventListener('close',()=>returnFocus?.focus());
-function respond(text){addMessage(text,true);const t=text.toLowerCase();let answer='This is a local demonstration, so I cannot answer live agency questions or send enquiries. You can explore the sample listings using Buy, Rent, property type and bedroom filters. The real assistant will be connected once the test integration is supplied.';if(/inspect|book|viewing/.test(t))answer='To arrange an inspection, the connected receptionist would confirm the property, your preferred time and contact details. This demo cannot create bookings. Please avoid sharing personal details here.';else if(/appraisal|sell|worth/.test(t))answer='For a home appraisal, the connected team would ask about your property and arrange a conversation. No appraisal request is submitted by this demo.';else if(/rent|buy|property|house/.test(t))answer='Use the Buy or Rent tabs below the main banner, then filter by location, property type or bedrooms. The displayed listings are illustrative examples only.';else if(/hello|hi\b/.test(t))answer='Hello! Would you like to explore sample properties, see the inspection enquiry flow or learn about appraisals?';addMessage(answer)}
-document.querySelector('#chat-form').onsubmit=e=>{e.preventDefault();const input=document.querySelector('#message');if(input.value.trim())respond(input.value.trim());input.value=''};document.querySelectorAll('[data-question]').forEach(b=>b.onclick=()=>respond(b.dataset.question));render(true);
+const nav = document.querySelector('#main-nav');
+const toggle = document.querySelector('#menu-toggle');
+const menu = document.querySelector('#mobile-menu');
+function closeMenu() { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); }
+toggle.onclick = () => { menu.hidden = !menu.hidden; toggle.setAttribute('aria-expanded', String(!menu.hidden)); };
+menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+window.addEventListener('scroll', () => nav.classList.toggle('nav-scrolled', scrollY > 50), { passive: true });
+document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+let searchMode = 'buy';
+const cards = [...document.querySelectorAll('[data-listing]')];
+const searchInput = document.querySelector('#property-query');
+const modeButtons = [...document.querySelectorAll('[data-search-mode]')];
+function chooseMode(mode) {
+  searchMode = mode;
+  modeButtons.forEach(b => { const selected = b.dataset.searchMode === mode; b.classList.toggle('mode-selected', selected); b.setAttribute('aria-pressed', String(selected)); });
+}
+function filterListings(mode = searchMode) {
+  chooseMode(mode);
+  const q = searchInput.value.trim().toLowerCase();
+  let visible = 0;
+  cards.forEach(card => { const show = (mode === 'all' || mode === card.dataset.mode) && (!q || card.dataset.searchText.includes(q)); card.hidden = !show; if (show) visible++; });
+  document.querySelector('#property-empty').hidden = visible !== 0;
+}
+modeButtons.forEach(b => b.onclick = () => chooseMode(b.dataset.searchMode));
+document.querySelector('#property-search').onclick = () => { filterListings(); document.querySelector('#properties').scrollIntoView({ behavior: 'smooth' }); };
+searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.querySelector('#property-search').click(); });
+document.querySelectorAll('[data-filter-link]').forEach(a => a.addEventListener('click', () => { searchInput.value = ''; filterListings(a.dataset.filterLink); }));
+chooseMode('buy');
+const detail = document.querySelector('#property-detail');
+document.querySelectorAll('[data-detail]').forEach(card => card.onclick = event => {
+  event.preventDefault();
+  const clone = card.cloneNode(true); clone.hidden = false; clone.removeAttribute('href'); clone.removeAttribute('data-detail');
+  document.querySelector('#property-detail-content').replaceChildren(clone);
+  detail.showModal();
+});
+document.querySelector('#close-property').onclick = () => detail.close();
+let teamIndex = 0;
+const track = document.querySelector('#team-track');
+function moveTeam(direction) {
+  const first = track.children[0];
+  const columns = innerWidth >= 1024 ? 3 : 1;
+  teamIndex = Math.min(Math.max(0, teamIndex + direction), track.children.length - columns);
+  const step = first.getBoundingClientRect().width + parseFloat(getComputedStyle(track).gap);
+  track.style.transform = `translateX(-${teamIndex * step}px)`;
+}
+document.querySelectorAll('[data-team-direction]').forEach(b => b.onclick = () => moveTeam(Number(b.dataset.teamDirection)));
+window.addEventListener('resize', () => moveTeam(0));
+document.querySelector('#contact-form').onsubmit = event => { event.preventDefault(); document.querySelector('#contact-notice').textContent = 'Demo only: nothing was sent or saved. The reference agency is not connected to this form.'; };
+const chat = document.querySelector('#chat'), messages = document.querySelector('#messages');
+let returnFocus;
+function addMessage(text, user = false) { const el = document.createElement('div'); el.className = 'message' + (user ? ' user' : ''); el.textContent = text; messages.append(el); messages.scrollTop = messages.scrollHeight; }
+function openChat() {
+  returnFocus = document.activeElement;
+  if (detail.open) detail.close();
+  if (!chat.open) chat.showModal();
+  if (!messages.children.length) addMessage('Welcome to this property website test. Text chat is a local demo. To speak to your existing Rayan Cleaning Services agent, use the AI receptionist button at the top.');
+  document.querySelector('#message').focus();
+}
+document.querySelectorAll('[data-chat]').forEach(b => b.onclick = openChat);
+document.querySelector('#close').onclick = () => chat.close();
+chat.addEventListener('close', () => returnFocus?.focus());
+function respond(text) {
+  addMessage(text, true);
+  const t = text.toLowerCase();
+  let response = 'This text chat is a local demonstration and cannot contact an agent. The voice button connects to your cleaning-services test agent. Property enquiries are not connected yet.';
+  if (/inspect|book|viewing/.test(t)) response = 'An inspection enquiry would normally confirm the property and your preferred time. This replica cannot book inspections or send enquiries to the reference agency.';
+  else if (/appraisal|sell|worth/.test(t)) response = 'You can explore the copied services and appraisal content, but this test cannot submit an appraisal request.';
+  else if (/rent|buy|property|house/.test(t)) response = 'Use the Buy, Sold or Lease tabs and search to filter the captured reference listings. This snapshot includes three sale properties; prices and availability are not live.';
+  addMessage(response);
+}
+document.querySelector('#chat-form').onsubmit = e => { e.preventDefault(); const input = document.querySelector('#message'); if (input.value.trim()) respond(input.value.trim()); input.value = ''; };
+document.querySelectorAll('[data-question]').forEach(b => b.onclick = () => respond(b.dataset.question));
+// Keep a navy fallback until YouTube reports a playable frame, rather than showing an iframe error.
+const heroVideo = document.querySelector('#home iframe');
+heroVideo.addEventListener('load', () => {
+  heroVideo.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 'premier-hero' }), 'https://www.youtube.com');
+});
+window.addEventListener('message', event => {
+  if (event.origin !== 'https://www.youtube.com' || event.source !== heroVideo.contentWindow) return;
+  try {
+    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+    if (data.event === 'onReady' || data.info?.playerState === 1) heroVideo.classList.add('video-ready');
+  } catch { /* Ignore messages that are not YouTube player events. */ }
+});

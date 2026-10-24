@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent
 AGENT_ID = 'agent_71e55befe1d7f8c935338a625d'
 lock = threading.Lock()
 last_call = 0
-PUBLIC_FILES = {'/': 'index.html', '/index.html': 'index.html', '/style.css': 'style.css', '/app.js': 'app.js', '/voice.bundle.js': 'dist/voice.bundle.js'}
+PUBLIC_FILES = {'/': 'index.html', '/index.html': 'index.html', '/style.css': 'style.css', '/reference.css': 'public/reference.css', '/app.js': 'app.js', '/voice.bundle.js': 'dist/voice.bundle.js'}
 
 class Handler(SimpleHTTPRequestHandler):
     def log_message(self, *_):
@@ -32,6 +32,10 @@ class Handler(SimpleHTTPRequestHandler):
         if path == '/api/voice/status':
             return self.reply(200, {'configured': bool(os.environ.get('RETELL_API_KEY'))})
         name = PUBLIC_FILES.get(path)
+        if path.startswith('/images/'):
+            candidate = (ROOT / 'public' / path.lstrip('/')).resolve()
+            if candidate.is_relative_to(ROOT / 'public' / 'images') and candidate.is_file():
+                name = str(candidate.relative_to(ROOT))
         if not name:
             return self.reply(404, {'error': 'Not found'})
         self.path = '/' + name

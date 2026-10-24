@@ -1,6 +1,6 @@
 # Premier property website concept
 
-Responsive property agency concept with sample listings, local demo text chat, and Retell browser voice calling using the existing Rayan Cleaning Services agent unchanged.
+Replica of the Premier Property Agents reference homepage, with the original navy/gold styling, logo, section order, copy, property photographs and video embed. Includes local demo text chat and Retell browser voice calling using the existing Rayan Cleaning Services agent unchanged.
 
 ## Setup and run
 
@@ -28,7 +28,9 @@ Verified credentialed agent lookup and successful v3 browser-call session creati
 
 ## Reference
 
-Requested reference: https://www.premierpropertyagents.com.au/. Initial access was blocked, so this is an original agency-style concept rather than a verified visual reproduction. CSS illustrations and listings are samples.
+Reference: https://www.premierpropertyagents.com.au/. Reference homepage inspected on 24 October 2026. `public/reference.css` retains its original published stylesheet and license notices. `index.html` is a static, editable capture of the rendered homepage, with independent interactions in `app.js`. The original app bundle and backend are not copied. Logo and three listing photos are retained in `public/images`; service/team photos, Google font and YouTube video retain their original external URLs. Those external hosts are blocked in this cloud environment and could not be visually verified here. They are requested directly by the visitor browser on Vercel.
+
+Listings are captured reference examples, not a live feed. Search filters the three captured sale listings; Sold/Lease show an explicit empty state. Internal links navigate to corresponding homepage sections rather than replicating every secondary page. Contact form submissions stay local and show a demo notice. No agency email or CRM is connected. The added receptionist bar identifies this as an independent testing replica. Obtain the agency owner's approval before using their branding and content for a public launch.
 
 ## Deploy to Vercel
 

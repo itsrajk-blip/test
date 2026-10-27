@@ -9,7 +9,7 @@ from pathlib import Path
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = Path(__file__).resolve().parent
-AGENT_ID = 'agent_71e55befe1d7f8c935338a625d'
+AGENT_ID = os.environ.get('RETELL_AGENT_ID', 'agent_71e55befe1d7f8c935338a625d')
 lock = threading.Lock()
 last_call = 0
 PUBLIC_FILES = {'/': 'index.html', '/index.html': 'index.html', '/style.css': 'style.css', '/reference.css': 'public/reference.css', '/app.js': 'app.js', '/voice.bundle.js': 'dist/voice.bundle.js'}
@@ -53,9 +53,6 @@ class Handler(SimpleHTTPRequestHandler):
         # Require a same-origin browser request; this is a private test endpoint.
         if self.headers.get('X-Receptionist-Request') != '1' or self.headers.get('Sec-Fetch-Site') not in (None, 'same-origin'):
             return self.reply(403, {'error': 'Please start the call from this website.'})
-        code = os.environ.get('TEST_ACCESS_CODE')
-        if code and self.headers.get('X-Test-Access-Code') != code:
-            return self.reply(403, {'error': 'Enter the correct test access code.'})
         key = os.environ.get('RETELL_API_KEY')
         if not key:
             return self.reply(503, {'error': 'Retell credentials are not available on the server.'})

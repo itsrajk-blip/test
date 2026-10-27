@@ -53,7 +53,7 @@ function openChat() {
   returnFocus = document.activeElement;
   if (detail.open) detail.close();
   if (!chat.open) chat.showModal();
-  if (!messages.children.length) addMessage('Welcome to this property website test. Text chat is a local demo. To speak to your existing Rayan Cleaning Services agent, use the AI receptionist button at the top.');
+  if (!messages.children.length) addMessage('Welcome to this property website test. Text chat is a local demo. To speak to the receptionist, use the AI receptionist button in the main page.');
   document.querySelector('#message').focus();
 }
 document.querySelectorAll('[data-chat]').forEach(b => b.onclick = openChat);
@@ -62,7 +62,7 @@ chat.addEventListener('close', () => returnFocus?.focus());
 function respond(text) {
   addMessage(text, true);
   const t = text.toLowerCase();
-  let response = 'This text chat is a local demonstration and cannot contact an agent. The voice button connects to your cleaning-services test agent. Property enquiries are not connected yet.';
+  let response = 'This text chat is a local demonstration and cannot contact an agent. The voice button connects to your configured receptionist. Property enquiries are not connected yet.';
   if (/inspect|book|viewing/.test(t)) response = 'An inspection enquiry would normally confirm the property and your preferred time. This replica cannot book inspections or send enquiries to the reference agency.';
   else if (/appraisal|sell|worth/.test(t)) response = 'You can explore the copied services and appraisal content, but this test cannot submit an appraisal request.';
   else if (/rent|buy|property|house/.test(t)) response = 'Use the Buy, Sold or Lease tabs and search to filter the captured reference listings. This snapshot includes three sale properties; prices and availability are not live.';

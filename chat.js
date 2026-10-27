@@ -16,7 +16,6 @@ function addMessage(text, user = false) {
 function updateControls() {
   form.querySelector('button').disabled = busy || ended;
   input.disabled = busy || ended;
-  document.querySelectorAll('[data-question]').forEach(b => b.disabled = busy || ended);
   endButton.disabled = busy || !session || ended;
   newButton.hidden = !ended;
 }
@@ -62,7 +61,6 @@ async function send(text) {
   } finally { busy = false; updateControls(); if (chat.open && !ended) input.focus(); }
 }
 form.onsubmit = e => { e.preventDefault(); send(input.value); };
-document.querySelectorAll('[data-question]').forEach(b => b.onclick = () => send(b.dataset.question));
 endButton.onclick = async () => {
   if (busy || !session || ended) return;
   busy = true; status.textContent = 'Ending conversation…'; updateControls();

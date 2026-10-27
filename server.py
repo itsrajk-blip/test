@@ -78,7 +78,7 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.reply(429, {'error': 'Please wait 30 seconds before starting another call.'})
             last_call = time.monotonic()
         request = urllib.request.Request('https://api.retellai.com/v3/create-web-call',
-            data=json.dumps({'agent_id': AGENT_ID}).encode(),
+            data=json.dumps({'agent_id': AGENT_ID, 'retell_llm_dynamic_variables': {'website_browser_call': 'true'}}).encode(),
             headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'}, method='POST')
         try:
             with urllib.request.urlopen(request, timeout=25) as response:

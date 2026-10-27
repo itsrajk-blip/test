@@ -49,3 +49,7 @@ Local builds now write dist/voice.bundle.js. The Python server serves that bundl
 The local Python server reuses the same API handler through `local-chat.mjs` with Node 24's `--use-env-proxy` support. Vercel runs `api/chat.mjs` directly. No additional dependency or secret is needed; the existing Vercel RETELL_API_KEY must have access to the supplied chat agent.
 
 Verified a real session create, agent reply and end through the local website backend. Browser tests cover session continuity, safe text rendering, failure recovery, end/restart, mobile layout. The Vercel deployment itself remains unverified. Post-chat email/CRM delivery must be configured separately in Retell and has not been verified here. A successful chat response is not evidence that an enquiry email was sent.
+
+## Voice call channel
+
+Both website call backends now supply `retell_llm_dynamic_variables.website_browser_call` as the string `true`. The Retell voice prompt must reference `{{website_browser_call}}` and give that flag priority over caller-ID wording. Its default dynamic variable is `false` for calls not created by this website; false alone is not proof that caller ID exists. The voice agent draft was updated with the channel rule and a reminder not to re-ask timing already given. Publishing that draft is a separate action. Retell dashboard browser tests must supply website_browser_call=true manually if testing this branch outside the website.

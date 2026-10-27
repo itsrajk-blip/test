@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   try {
     const response = await fetch('https://api.retellai.com/v3/create-web-call', {
       method: 'POST', headers: { Authorization: `Bearer ${process.env.RETELL_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ agent_id: process.env.RETELL_AGENT_ID || 'agent_71e55befe1d7f8c935338a625d' }), signal: AbortSignal.timeout(25000),
+      body: JSON.stringify({ agent_id: process.env.RETELL_AGENT_ID || 'agent_71e55befe1d7f8c935338a625d', retell_llm_dynamic_variables: { website_browser_call: 'true' } }), signal: AbortSignal.timeout(25000),
     });
     if (!response.ok) return res.status(502).json({ error: `Retell could not create the call (HTTP ${response.status}).` });
     const data = await response.json();

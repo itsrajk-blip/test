@@ -2,5 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "functions": { "api/voice/call.mjs": { "maxDuration": 30 } }
+  "functions": {
+    "api/voice/call.mjs": {
+      "maxDuration": 30
+    },
+    "api/chat.mjs": {
+      "maxDuration": 30
+    }
+  }
 }

@@ -1,5 +1,6 @@
 """Local test server. Retell credentials never leave the server."""
 import json
+import subprocess
 import os
 import time
 import threading
@@ -12,7 +13,7 @@ ROOT = Path(__file__).resolve().parent
 AGENT_ID = os.environ.get('RETELL_AGENT_ID', 'agent_71e55befe1d7f8c935338a625d')
 lock = threading.Lock()
 last_call = 0
-PUBLIC_FILES = {'/': 'index.html', '/index.html': 'index.html', '/style.css': 'style.css', '/reference.css': 'public/reference.css', '/app.js': 'app.js', '/voice.bundle.js': 'dist/voice.bundle.js'}
+PUBLIC_FILES = {'/': 'index.html', '/index.html': 'index.html', '/style.css': 'style.css', '/reference.css': 'public/reference.css', '/app.js': 'app.js', '/chat.js': 'chat.js', '/voice.bundle.js': 'dist/voice.bundle.js'}
 
 class Handler(SimpleHTTPRequestHandler):
     def log_message(self, *_):
@@ -48,6 +49,22 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         global last_call
+        if self.path == '/api/chat':
+            try:
+                size = int(self.headers.get('Content-Length', '0'))
+                if size <= 0 or size > 16384:
+                    return self.reply(400, {'error': 'Invalid chat request size.'})
+                body = json.loads(self.rfile.read(size))
+                result = subprocess.run(
+                    ['node', '--use-env-proxy', str(ROOT / 'local-chat.mjs')],
+                    input=json.dumps({'method': 'POST', 'headers': {k.lower(): v for k, v in self.headers.items()}, 'body': body}),
+                    capture_output=True, text=True, timeout=30, cwd=ROOT)
+                if result.returncode:
+                    return self.reply(502, {'error': 'Chat is temporarily unavailable.'})
+                response = json.loads(result.stdout)
+                return self.reply(response['code'], response['data'])
+            except (ValueError, OSError, subprocess.TimeoutExpired):
+                return self.reply(502, {'error': 'Unable to process this chat request.'})
         if self.path != '/api/voice/call':
             return self.reply(404, {'error': 'Not found'})
         # Require a same-origin browser request; this is a private test endpoint.

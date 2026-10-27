@@ -46,30 +46,6 @@ function moveTeam(direction) {
 document.querySelectorAll('[data-team-direction]').forEach(b => b.onclick = () => moveTeam(Number(b.dataset.teamDirection)));
 window.addEventListener('resize', () => moveTeam(0));
 document.querySelector('#contact-form').onsubmit = event => { event.preventDefault(); document.querySelector('#contact-notice').textContent = 'Demo only: nothing was sent or saved. The reference agency is not connected to this form.'; };
-const chat = document.querySelector('#chat'), messages = document.querySelector('#messages');
-let returnFocus;
-function addMessage(text, user = false) { const el = document.createElement('div'); el.className = 'message' + (user ? ' user' : ''); el.textContent = text; messages.append(el); messages.scrollTop = messages.scrollHeight; }
-function openChat() {
-  returnFocus = document.activeElement;
-  if (detail.open) detail.close();
-  if (!chat.open) chat.showModal();
-  if (!messages.children.length) addMessage('Welcome to this property website test. Text chat is a local demo. To speak to the receptionist, use the AI receptionist button in the main page.');
-  document.querySelector('#message').focus();
-}
-document.querySelectorAll('[data-chat]').forEach(b => b.onclick = openChat);
-document.querySelector('#close').onclick = () => chat.close();
-chat.addEventListener('close', () => returnFocus?.focus());
-function respond(text) {
-  addMessage(text, true);
-  const t = text.toLowerCase();
-  let response = 'This text chat is a local demonstration and cannot contact an agent. The voice button connects to your configured receptionist. Property enquiries are not connected yet.';
-  if (/inspect|book|viewing/.test(t)) response = 'An inspection enquiry would normally confirm the property and your preferred time. This replica cannot book inspections or send enquiries to the reference agency.';
-  else if (/appraisal|sell|worth/.test(t)) response = 'You can explore the copied services and appraisal content, but this test cannot submit an appraisal request.';
-  else if (/rent|buy|property|house/.test(t)) response = 'Use the Buy, Sold or Lease tabs and search to filter the captured reference listings. This snapshot includes three sale properties; prices and availability are not live.';
-  addMessage(response);
-}
-document.querySelector('#chat-form').onsubmit = e => { e.preventDefault(); const input = document.querySelector('#message'); if (input.value.trim()) respond(input.value.trim()); input.value = ''; };
-document.querySelectorAll('[data-question]').forEach(b => b.onclick = () => respond(b.dataset.question));
 // Keep a navy fallback until YouTube reports a playable frame, rather than showing an iframe error.
 const heroVideo = document.querySelector('#home iframe');
 heroVideo.addEventListener('load', () => {
